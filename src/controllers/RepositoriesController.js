@@ -26,10 +26,9 @@ class RepositoriesController {
 
             return res.json(repositories)
         } catch(error) {
-            return res.status(500).json({ msg: 'Erro', error})
+            return res.status(500).json({ msg: 'Aconteceu um erro ao tentar carregar repositórios.', error})
         }
     }
-
 
     async create(req, res) {
         try {
@@ -38,8 +37,12 @@ class RepositoriesController {
 
             const user = await User.findById(user_id);
 
-            if(!user){
-                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado'})
+            if(!user) {
+                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
+            }
+
+            if(!url) {
+                return res.status(404).json({ msg: 'Informe uma Url!'})
             }
 
             const repository = await Repository.findOne({
@@ -48,7 +51,7 @@ class RepositoriesController {
             })
             
             if(repository) {
-                return res.status(422).json({ msg: `Repositório ${name} já existe`})
+                return res.status(422).json({ msg: `Repositório ${name} já existe!`})
             }
 
             const newRepository = await Repository.create({
@@ -57,9 +60,47 @@ class RepositoriesController {
                 userId: user_id
             })
 
-            return res.status(201).json(newRepository)
+            return res.status(201).json({ msg: `Repositório ${name} adicionado com sucesso!`})
         } catch(error) {
-            return res.status(500).json({ msg: 'Erro', error})
+            return res.status(500).json({ msg: 'Aconteceu um erro ao criar um novo repositório.', error})
+        }
+    }
+
+    async update(req, res) {
+        try {
+            const { user_id, id } = req.params
+            const { name, url} = req.body
+
+            if(!url) {
+                return res.status(404).json({ msg: 'Informe uma Url!'})
+            }
+
+            const user = await User.findById(user_id);
+
+            if(!user) {
+                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
+            }
+
+            const newRepository = await Repository.findOne({
+                userId: user_id,
+                url
+            })
+            
+            if(newRepository) {
+                return res.status(422).json({ msg: `Repositório ${name} já existe!`})
+            }
+
+            const repository = await Repository.findById(id);
+            
+            if(!repository) {
+                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
+            }
+
+            await repository.updateOne({ name, url })
+
+            return res.status(200).json({ msg: `Repositório ${repository.name} atualizado para ${name}`});
+        } catch(error) {
+            return res.status(500).json({ msg: 'Aconteceu um erro ao atualizar repositório.', error})
         }
     }
 
@@ -70,7 +111,11 @@ class RepositoriesController {
             const user = await User.findById(user_id);
 
             if(!user){
-                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado'})
+                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
+            }
+
+            if(!id){
+                return res.status(404).json({ msg: 'Informe um repositório.'})
             }
 
             const repository = await Repository.findOne({
@@ -79,14 +124,14 @@ class RepositoriesController {
             });
 
             if(!repository) {
-                return res.status(404).json({ msg: `[ERRO]:`})
+                return res.status(404).json({ msg: 'Repositório não encontrado.'})
             }
 
             const repositoryDeleted = await repository.deleteOne()
 
-            return res.status(200).json(repositoryDeleted)
+            return res.status(200).json({ msg: `Repositório ${repositoryDeleted.name} excluido!` })
         } catch(error) {
-            return res.status(500).json({ msg: '[ERRO]:', error})
+            return res.status(500).json({ msg: 'Aconteceu um erro ao exluir repositório.', error})
         }
     }
 }

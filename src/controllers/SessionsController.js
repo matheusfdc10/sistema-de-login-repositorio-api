@@ -8,6 +8,14 @@ class SesseionController {
     async create(req, res) {
         const { email, password } = req.body
 
+        if(!email) {
+            return res.status(401).json({ msg: 'Informe um e-mail.'})
+        }
+
+        if(!password) {
+            return res.status(401).json({ msg: 'Informe uma senha.'})
+        }
+
         const user = await User.findOne({ email })
 
         if(!user) {
