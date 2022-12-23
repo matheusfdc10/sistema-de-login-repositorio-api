@@ -14,10 +14,13 @@ routes.post('/user', UserController.create);
 routes.use(auth)
 
 // controler privados
-routes.get('/users', UserController.index);
-routes.get('/user/:id', UserController.show);
-routes.put('/user/:id', UserController.update);
-routes.delete('/user/:id', UserController.destroy);
+// routes.get('/users', UserController.index);
+// routes.get('/user/:id', UserController.show);
+// routes.put('/user/:id', UserController.update);
+// routes.delete('/user/:id', UserController.destroy);
+
+routes.post('/user/:id/checkPassword', UserController.checkPassword); 
+routes.put('/user/:id/updatePassword/:token', UserController.updatePassword);
 
 routes.get('/user/:user_id/repositories', RepositoriesController.index);
 routes.post('/user/:user_id/repositories', RepositoriesController.create);

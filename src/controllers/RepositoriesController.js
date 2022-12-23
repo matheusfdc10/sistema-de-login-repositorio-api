@@ -93,7 +93,7 @@ class RepositoriesController {
             const repository = await Repository.findById(id);
             
             if(!repository) {
-                return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
+                return res.status(404).json({ msg: '[ERRO]: repositório não encontrado.'})
             }
 
             await repository.updateOne({ name, url })
