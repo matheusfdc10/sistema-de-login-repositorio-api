@@ -4,6 +4,8 @@ import User from '../models/User'
 import { checkPassword } from '../services/auth'
 import authConfig from '../config/auth'
 
+import { promisify } from 'util'
+
 class SesseionController {
     async create(req, res) {
         const { email, password } = req.body
@@ -17,7 +19,7 @@ class SesseionController {
         }
 
         const user = await User.findOne({ email })
-
+        
         if(!user) {
             return res.status(401).json({ msg: 'Usuário ou senha inválido'})
         }
@@ -30,16 +32,52 @@ class SesseionController {
 
         const { id, name } = user
 
+        const token = jwt.sign({ id }, authConfig.secret, {
+            expiresIn: authConfig.expiresIn,
+        })
+
+        await user.updateOne({ token })
+
         return res.json({
             user: {
                 id,
                 name,
                 email
             },
-            token: jwt.sign({ id }, authConfig.secret, {
-                expiresIn: authConfig.expiresIn,
-            })
+            token
         })
+    }
+
+    async validUser(req, res){
+        const { token, email } = req.params
+
+        try {
+
+            if(!token && !email){
+                return res.status(401).json({ msg: 'Dados não fornecidos'})
+            }
+    
+            try {
+                await promisify(jwt.verify)(token, authConfig.secret)
+            } catch {
+                return res.status(401).json({ msg: 'Token inválido', error: true})
+            }
+            
+            const { id, name } = await User.findOne({ email, token}, '-password') // 
+    
+            if(!id){
+                return res.status(401).json({ msg: 'Usuário não econtrado'})
+            }
+
+            return res.status(200).json({
+                id,
+                name,
+                email
+            })
+            
+        }catch {
+            return res.status(401).json({ msg: '[ERRO]: Erro ao validar usuário!!', error: true})
+        }
     }
 }
 

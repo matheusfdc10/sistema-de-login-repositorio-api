@@ -18,7 +18,7 @@ class RepositoriesController {
             if(q) {
                 query = { url: { $regex: q } }
             }
-
+            
             const repositories = await Repository.find({
                 userId: user_id,
                 ...query

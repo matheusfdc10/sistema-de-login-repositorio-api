@@ -39,7 +39,7 @@ class UserController {
 
     async create(req, res) {
         try {
-            const { name, email, password, confirmPassword} = req.body;
+            const { name, email, password, confirmPassword } = req.body;
 
             if(!name) {
                 return res.status(422).json({ msg: `Informe seu nome.`});
@@ -65,9 +65,14 @@ class UserController {
 
             const encreatePasswordHash = await createPasswordHash(password)
 
-            const newUser = await User.create( { name, email, password: encreatePasswordHash});
+            await User.create({ 
+                name, 
+                email, 
+                password: encreatePasswordHash,
+                token: null            
+            });
 
-            return res.status(201).json(newUser);
+            return res.status(201).json();
         } catch(error) {
             return res.status(500).json({ msg: '[ERRO]: não foi possível criar uma conta.', error})
         }
@@ -127,6 +132,9 @@ class UserController {
             return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar excluir usuário.', error})
         }
     }
+
+
+
 
     async checkPassword(req, res) {
         try {
