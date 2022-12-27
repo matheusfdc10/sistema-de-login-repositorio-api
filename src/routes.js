@@ -6,23 +6,26 @@ import RepositoriesController from './controllers/RepositoriesController';
 
 const routes = new Router();
 
-// *controler publicos*
+// -----controler publicos-----
 routes.post('/sessions', SessionsController.create)
 routes.get('/sessions/:token/:email', SessionsController.validUser)
 routes.post('/user', UserController.create);
 
 
-// *middlewares*
+// -----middlewares-----
 routes.use(auth)
 
 
-// *controler privados*
+// -----controler privados-----
+routes.put('/sessions/:token/:email', SessionsController.logout)
+
 // routes.get('/users', UserController.index);
 // routes.get('/user/:id', UserController.show);
 // routes.put('/user/:id', UserController.update);
 // routes.delete('/user/:id', UserController.destroy);
 
 routes.post('/user/:id/checkPassword', UserController.checkPassword); 
+routes.put('/user/:id/updatePassword/:token', UserController.updatePassword);
 routes.put('/user/:id/updatePassword/:token', UserController.updatePassword);
 
 routes.get('/user/:user_id/repositories', RepositoriesController.index);

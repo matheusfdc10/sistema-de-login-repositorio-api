@@ -79,6 +79,36 @@ class SesseionController {
             return res.status(401).json({ msg: '[ERRO]: Erro ao validar usuário!!', error: true})
         }
     }
+
+    async logout(req, res){
+        const { token, email } = req.params
+
+        try {
+
+            if(!token && !email){
+                return res.status(401).json({ msg: 'Dados não fornecidos.'})
+            }
+    
+            try {
+                await promisify(jwt.verify)(token, authConfig.secret)
+            } catch {
+                return res.status(401).json({ msg: 'Token inválido', error: true})
+            }
+            
+            const user = await User.findOne({ email, token}, '-password') // 
+    
+            if(!user){
+                return res.status(401).json({ msg: 'Usuário não econtrado'})
+            }
+
+            await user.updateOne({ token: null })
+
+            return res.status(200).json({ msg: 'sessão finalizada' })
+
+        }catch {
+            return res.status(401).json({ msg: '[ERRO]: Erro ao finalizar sessão!!', error: true})
+        }
+    }
 }
 
 export default new SesseionController();
