@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
-import User from '../models/User'
-import { checkPassword } from '../services/auth'
-import authConfig from '../config/auth'
+import User from '../models/User.js'
+import { checkPassword } from '../services/auth.js'
+import authConfig from '../config/auth.js'
 import { promisify } from 'util'
 
 class SesseionController {

@@ -1,9 +1,8 @@
-import User from '../models/User'
-import { createPasswordHash } from '../services/auth';
-import { checkPassword } from '../services/auth'
-
+import User from '../models/User.js'
+import { createPasswordHash } from '../services/auth.js';
+import { checkPassword } from '../services/auth.js'
 import jwt from 'jsonwebtoken'
-import authConfig from '../config/authUpdateUser'
+import authConfig from '../config/authUpdateUser.js'
 import { promisify } from 'util'
 
 class UserController {

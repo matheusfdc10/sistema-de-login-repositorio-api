@@ -1,5 +1,5 @@
-import User from "../models/User"
-import Repository from "../models/Repository"
+import User from "../models/User.js"
+import Repository from "../models/Repository.js"
 
 class RepositoriesController {
     async index(req, res) {
