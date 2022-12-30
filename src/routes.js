@@ -11,8 +11,6 @@ routes.post('/sessions', SessionsController.create)
 routes.post('/user', UserController.create);
 
 
-routes.get('/users', UserController.index);
-
 // -----middlewares-----
 routes.use(auth)
 
