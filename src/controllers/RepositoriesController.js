@@ -4,10 +4,10 @@ import Repository from "../models/Repository"
 class RepositoriesController {
     async index(req, res) {
         try {
-            const { user_id} = req.params
+            const userId = req.userId
             const { q } = req.query
 
-            const user = await User.findById(user_id);
+            const user = await User.findById(userId);
 
             if(!user){
                 return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado'})
@@ -20,7 +20,7 @@ class RepositoriesController {
             }
             
             const repositories = await Repository.find({
-                userId: user_id,
+                userId,
                 ...query
             });
 
@@ -32,10 +32,10 @@ class RepositoriesController {
 
     async create(req, res) {
         try {
-            const { user_id } = req.params
+            const userId = req.userId
             const { name, url} = req.body
 
-            const user = await User.findById(user_id);
+            const user = await User.findById(userId);
 
             if(!user) {
                 return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
@@ -46,7 +46,7 @@ class RepositoriesController {
             }
 
             const repository = await Repository.findOne({
-                userId: user_id,
+                userId,
                 url
             })
             
@@ -57,7 +57,7 @@ class RepositoriesController {
             const newRepository = await Repository.create({
                 name,
                 url,
-                userId: user_id
+                userId
             })
 
             return res.status(201).json({ msg: `Repositório ${name} adicionado com sucesso!`})
@@ -68,21 +68,22 @@ class RepositoriesController {
 
     async update(req, res) {
         try {
-            const { user_id, id } = req.params
+            const userId = req.userId
+            const { id } = req.params
             const { name, url} = req.body
 
             if(!url) {
                 return res.status(404).json({ msg: 'Informe uma Url!'})
             }
 
-            const user = await User.findById(user_id);
+            const user = await User.findById(userId);
 
             if(!user) {
                 return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
             }
 
             const newRepository = await Repository.findOne({
-                userId: user_id,
+                userId,
                 url
             })
             
@@ -106,9 +107,10 @@ class RepositoriesController {
 
     async destroy(req, res) {
         try {
-            const { user_id, id } = req.params
+            const userId = req.userId
+            const { id } = req.params
             
-            const user = await User.findById(user_id);
+            const user = await User.findById(userId);
 
             if(!user){
                 return res.status(404).json({ msg: '[ERRO]: Usuário não encontrado.'})
@@ -119,7 +121,7 @@ class RepositoriesController {
             }
 
             const repository = await Repository.findOne({
-                userId: user_id,
+                userId,
                 _id: id
             });
 

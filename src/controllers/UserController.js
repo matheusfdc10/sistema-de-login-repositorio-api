@@ -12,7 +12,7 @@ class UserController {
             const users = await User.find();
             return res.json(users)
         } catch(error) {
-            return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar listar todos usuários.', error})
+            return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar listar usuários.', error})
         }
     }
 
@@ -68,13 +68,12 @@ class UserController {
             await User.create({ 
                 name, 
                 email, 
-                password: encreatePasswordHash,
-                token: null            
+                password: encreatePasswordHash,        
             });
 
             return res.status(201).json();
         } catch(error) {
-            return res.status(500).json({ msg: '[ERRO]: não foi possível criar uma conta.', error})
+            return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar criar uma conta.', error})
         }
     }
 
@@ -133,13 +132,32 @@ class UserController {
         }
     }
 
+    async getUser(req, res){
+        try {
+            const id = req.userId
 
+            if(!id) {
+                return res.status(401).json({ msg: 'Sessão expirada', error: true})
+            }
 
+            const user = await User.findOne({ _id: id}, '-password') // 
+            
+            if(!user){
+                return res.status(401).json({ msg: 'Usuário não econtrado'})
+            }
+
+            return res.status(200).json({
+                name: user.name
+            })
+        } catch(error) {
+            return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar encontrar usuário.', error})
+        }   
+    }
 
     async checkPassword(req, res) {
         try {
-            const { id } = req.params
-            const { email, password } = req.body;
+            const id = req.userId
+            const { password } = req.body;
 
             if(!password) {
                 return res.status(404).json({ msg: 'Informe sua senha.'})
@@ -156,7 +174,6 @@ class UserController {
             }
 
             const checkeUser = await User.findOne({ 
-                email,
                 _id: id
             })
 
@@ -170,11 +187,11 @@ class UserController {
                 return res.status(401).json({ msg: 'Senha incorreta.'})
             }
 
-            const { _id } = user
+            const { _id, email } = user
     
             return res.status(200).json({
                 auth: true,
-                token: jwt.sign({ id: _id }, authConfig.secret, {
+                token: jwt.sign({ id: _id, email}, authConfig.secret, {
                     expiresIn: authConfig.expiresIn,
                 })
             })
@@ -186,8 +203,9 @@ class UserController {
 
     async updatePassword(req, res) {
         try {
-            const { id, token } = req.params
-            const { password, confirmPassword} = req.body
+            const id = req.userId
+            const { token } = req.params
+            const { password, confirmPassword } = req.body
 
             if(!token) {
                 return res.status(401).json({ msg: 'Token não fornecido'})
@@ -195,6 +213,9 @@ class UserController {
             
             try {
                 const resp = await promisify(jwt.verify)(token, authConfig.secret)
+                if(resp.id !== id) {
+                    return res.status(401).json({ msg: 'Tente novamente', error: true})
+                }
             } catch {
                 return res.status(401).json({ msg: 'Token inválido', error: true})
             }
@@ -223,7 +244,7 @@ class UserController {
 
             return res.status(200).json({ msg: 'Senha alterada com sucesso.'});
         } catch(error) {
-            return res.status(500).json({ msg: '[ERRO]: Não foi possível alterar senha.'});
+            return res.status(500).json({ msg: '[ERRO]: Aconteceu um erro ao tentar alterar senha.', error});
         }
     }
 }
